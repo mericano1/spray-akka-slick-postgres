@@ -1,86 +1,86 @@
 package app.models
 
-import scala.slick.driver.PostgresDriver
-import scala.slick.driver.PostgresDriver.simple._
-import com.github.tototoshi.slick.JodaSupport._
-import org.joda.time.DateTime
-import spray.json._
-import DefaultJsonProtocol._
-import com.github.tototoshi.csv._
-
 import app.utils.PostgresSupport
+import com.github.tototoshi.csv._
+import org.joda.time.DateTime
+import play.api.libs.json.Json
+import com.github.tototoshi.slick.JdbcJodaSupport._
+
+import scala.slick.driver.PostgresDriver.simple._
 
 case class Task(
-  taskId:   Int,
+  taskId:   Long,
   content:  String,
   created:  DateTime,
   finished: Boolean,
   assignee: String
 )
+object Task {
+  implicit val jsonFormat = Json.format[Task]
+}
 
 object TaskDAO extends PostgresSupport {
-  import CSVConverter._
-  import app.data.TaskJsonProtocol._
 
-  object TaskTable extends Table[Task]("tasks") {
-    def taskId    = column[Int]     ("taskId", O.AutoInc, O.PrimaryKey, O.DBType("BIGINT"))
+  class TaskTable(tag: Tag) extends Table[Task](tag, "tasks") {
+    def taskId    = column[Long]     ("taskId", O.AutoInc, O.PrimaryKey, O.DBType("BIGSERIAL"))
     def content   = column[String]  ("content", O.DBType("VARCHAR(50)"), O.NotNull)
     def created   = column[DateTime]("created", O.DBType("TIMESTAMP"), O.NotNull)
     def finished  = column[Boolean] ("finished", O.DBType("BOOLEAN"), O.NotNull)
     def assignee  = column[String]  ("assignee", O.DBType("VARCHAR(20)"), O.NotNull)
-
-    def *         = (taskId ~ content ~ created ~ finished ~ assignee) <> (Task, Task.unapply _)
-
-    def forInsert = (content ~ created ~ finished ~ assignee) returning taskId
+    def *         = (taskId , content , created , finished , assignee) <> ((Task.apply _).tupled, Task.unapply)
   }
 
+  val tasks = TableQuery[TaskTable]
+
+  import Json._
   case class Count(numberOfTasks: Int)
-  case class Ids(ids: List[Int])
+  case class Ids(ids: List[Long])
   case class Result(result: String)
-  implicit val countJsonFormat = jsonFormat1(Count)
-  implicit val idsJsonFormat = jsonFormat1(Ids)
-  implicit val resultFormat = jsonFormat1(Result)
-  def pgResult(result: String) = new Result(result).toJson.compactPrint
+  implicit val countFmt = Json.format[Count]
+  implicit val idsFmt = Json.format[Ids]
+  implicit val resultFmt = Json.format[Result]
+  def pgResult(result: String) = toJson(Result(result)).toString()
 
   def numberOfTasks: String = {
-    val count: Int = Query(TaskTable).list.length
-    new Count(count).toJson.compactPrint
+    val count: Int = tasks.list.length
+    toJson(Count(count)).toString()
   }
 
   def listAllIds: String = {
-    val ids = Query(TaskTable).map(_.taskId).list
-    new Ids(ids).toJson.compactPrint
+    val ids = tasks.list.map(_.taskId)
+    toJson(Ids(ids)).toString()
   }
 
   def listAllTasks: String =
-    Query(TaskTable).list.toJson.compactPrint
+    toJson(tasks.list).toString()
 
   def createTable =
-    TaskTable.ddl.create
+    tasks.ddl.create
 
   def dropTable =
-    TaskTable.ddl.drop
+    tasks.ddl.drop
 
   def addTask(content: String, assignee: String): String = {
-    TaskTable.forInsert.insert(content, new DateTime(), false, assignee) match {
+    (tasks returning tasks.map(_.taskId)) += Task(0, content, new DateTime(), false, assignee) match {
       case 0 => pgResult("Something went wrong")
       case n => pgResult(s"Task $n added successfully")
     }
   }
 
-  def fetchTaskById(id: Int): String = 
-    Query(TaskTable).where(_.taskId is id).list.toJson.compactPrint
+  def fetchTaskById(id: Long): String = {
+    toJson(tasks.filter(_.taskId === id).list).toString()
+  }
 
-  def deleteTaskById(id: Int): String = {
-    TaskTable.filter(_.taskId === id).delete match {
+  def deleteTaskById(id: Long): String = {
+    tasks.filter(_.taskId === id).delete match {
       case 0 => pgResult(s"Task $id was not found")
       case 1 => pgResult(s"Task $id successfully deleted")
       case _ => pgResult("Something went wrong")
     }
   }
 
-  def updateTaskById(id: Int, newContent: String): String = {
-    TaskTable.where(_.taskId is id).
+  def updateTaskById(id: Long, newContent: String): String = {
+    tasks.filter(_.taskId === id).
       map(t => t.content).
       update(newContent) match {
         case 1 => pgResult(s"Task $id successfully modified")
@@ -98,7 +98,7 @@ object TaskDAO extends PostgresSupport {
   }
 
   def deleteAll = {
-    Query(TaskTable).delete match {
+    tasks.delete match {
       case 0 => pgResult("0 tasks deleted")
       case 1 => pgResult("1 task deleted")
       case n => pgResult(s"$n tasks deleted")
@@ -108,7 +108,8 @@ object TaskDAO extends PostgresSupport {
 
 object CSVConverter {
   import java.io.File
-  import scala.collection.mutable.ListBuffer
+
+import scala.collection.mutable.ListBuffer
 
   def convert(filename: String) = {
     val reader = CSVReader.open(new File(filename))

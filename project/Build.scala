@@ -6,7 +6,7 @@ object BuildSettings {
   val buildVersion      = "0.1.0"
   val buildScalaVersion = "2.10.3"
 
-  val buildSettings = Defaults.defaultSettings ++ Seq (
+  val buildSettings = Defaults.coreDefaultSettings ++ Seq (
     organization := buildOrganization,
     version      := buildVersion,
     scalaVersion := buildScalaVersion
@@ -32,19 +32,23 @@ object Resolvers {
 }
 
 object Dependencies {
-  val akkaVersion  = "2.2.0"
-  val sprayVersion = "1.2-20130710"
+  val akkaVersion  = "2.3.2"
+  val sprayVersion = "1.3.1"
 
   val akkaActor    = "com.typesafe.akka" %% "akka-actor" % akkaVersion
   val akkaSlf4j    = "com.typesafe.akka" %% "akka-slf4j" % akkaVersion
   val sprayCan     = "io.spray" %  "spray-can"     % sprayVersion
   val sprayHttpx   = "io.spray" %  "spray-httpx"   % sprayVersion
   val sprayRouting = "io.spray" %  "spray-routing" % sprayVersion
-  val sprayJson    = "io.spray" %% "spray-json"    % "1.2.5"
-  val slick        = "com.typesafe.slick"   %% "slick"             % "1.0.1"
+  val playJson    = "com.typesafe.play" %% "play-json" % akkaVersion
+  val slick        = "com.typesafe.slick"   %% "slick"             % "2.1.0"
   val postgres     = "postgresql"           %  "postgresql"        % "9.1-901-1.jdbc4"
-  val slickJoda    = "com.github.tototoshi" %% "slick-joda-mapper" % "0.3.0"
-  val scalaCsv     = "com.github.tototoshi" %% "scala-csv"         % "1.0.0-SNAPSHOT"
+  val slickJoda    =  Seq(
+    "joda-time" % "joda-time" % "2.4",
+    "org.joda" % "joda-convert" % "1.6",
+    "com.github.tototoshi" %% "slick-joda-mapper" % "1.2.0"
+  )
+  val scalaCsv     = "com.github.tototoshi" %% "scala-csv"         % "1.0.0"
   val logback      = "ch.qos.logback"       %  "logback-classic"   % "1.0.0"
 }
 
@@ -59,16 +63,15 @@ object AppBuild extends Build {
     sprayCan,
     sprayHttpx,
     sprayRouting,
-    sprayJson
+    playJson
   )
 
   val otherDeps = Seq(
     slick,
     postgres,
-    slickJoda,
     scalaCsv,
     logback
-  )
+  ) ++ slickJoda
 
   val allDeps = akkaDeps ++ sprayDeps ++ otherDeps
 

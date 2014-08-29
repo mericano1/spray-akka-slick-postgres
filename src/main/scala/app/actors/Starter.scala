@@ -3,10 +3,9 @@ package app.actors
 import akka.actor._
 import akka.io.IO
 import akka.routing.RoundRobinRouter
-import spray.can.Http
-
-import app.{ Configs => C }
 import app.server.ServerSupervisor
+import app.Configs
+import spray.can.Http
 
 object Starter {
   case object Start
@@ -14,7 +13,7 @@ object Starter {
 }
 
 class Starter extends Actor {
-  import Starter.{ Start, Stop }
+  import app.actors.Starter.Start
 
   implicit val system = context.system
 
@@ -22,6 +21,6 @@ class Starter extends Actor {
     case Start =>
       val mainHandler: ActorRef =
         context.actorOf(Props[ServerSupervisor].withRouter(RoundRobinRouter(nrOfInstances = 10)))
-      IO(Http) ! Http.Bind(mainHandler, interface = C.interface, port = C.appPort)
+      IO(Http) ! Http.Bind(mainHandler, interface = Configs.interface, port = Configs.appPort)
   }
 }

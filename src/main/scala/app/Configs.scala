@@ -8,10 +8,13 @@ object Configs {
   
   val interface    = c.getString("app.interface")
   val appPort      = c.getInt("app.port")
-  val pgHost       = c.getString("postgres.host")
-  val pgPort       = c.getInt("postgres.port")
-  val pgDBName     = c.getString("postgres.dbname")
-  val pgDriver     = c.getString("postgres.driver")
+
+  val dbHost       = c.getString("db.host")
+  val dbPort       = c.getInt("db.port")
+  val dbDBName     = c.getString("db.dbname")
+  val dbDriver     = c.getString("db.driver")
+  val dbUser     = c.getString("db.username")
+  val dbPassword     = c.getString("db.password")
 
   val log: Logger = LoggerFactory.getLogger(this.getClass)
 }
