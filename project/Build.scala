@@ -32,7 +32,7 @@ object Resolvers {
 }
 
 object Dependencies {
-  val akkaVersion  = "2.3.2"
+  val akkaVersion  = "2.3.6"
   val sprayVersion = "1.3.1"
 
   val akkaActor    = "com.typesafe.akka" %% "akka-actor" % akkaVersion
@@ -40,7 +40,7 @@ object Dependencies {
   val sprayCan     = "io.spray" %  "spray-can"     % sprayVersion
   val sprayHttpx   = "io.spray" %  "spray-httpx"   % sprayVersion
   val sprayRouting = "io.spray" %  "spray-routing" % sprayVersion
-  val playJson    = "com.typesafe.play" %% "play-json" % akkaVersion
+  val playJson    = "com.typesafe.play" %% "play-json" % "2.4.0-M1"
   val slick        = "com.typesafe.slick"   %% "slick"             % "2.1.0"
   val postgres     = "org.postgresql"           %  "postgresql"        % "9.3-1102-jdbc41"
   val slickJoda    =  Seq(
