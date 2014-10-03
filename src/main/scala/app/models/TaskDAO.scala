@@ -15,22 +15,20 @@ case class Task(
   finished: Boolean,
   assignee: String
 )
-object Task {
-  implicit val jsonFormat = Json.format[Task]
-}
 
 object TaskDAO extends PostgresSupport {
 
   class TaskTable(tag: Tag) extends Table[Task](tag, "tasks") {
-    def taskId    = column[Long]     ("taskId", O.AutoInc, O.PrimaryKey, O.DBType("BIGSERIAL"))
+    def taskId    = column[Long]     ("taskId", O.PrimaryKey)
     def content   = column[String]  ("content", O.DBType("VARCHAR(50)"), O.NotNull)
     def created   = column[DateTime]("created", O.DBType("TIMESTAMP"), O.NotNull)
     def finished  = column[Boolean] ("finished", O.DBType("BOOLEAN"), O.NotNull)
     def assignee  = column[String]  ("assignee", O.DBType("VARCHAR(20)"), O.NotNull)
-    def *         = (taskId , content , created , finished , assignee) <> ((Task.apply _).tupled, Task.unapply)
+    def *         = (taskId, content , created , finished , assignee) <> (Task.tupled, Task.unapply)
   }
 
   val tasks = TableQuery[TaskTable]
+  implicit val jsonFormat = Json.format[Task]
 
   import Json._
   case class Count(numberOfTasks: Int)
@@ -54,14 +52,15 @@ object TaskDAO extends PostgresSupport {
   def listAllTasks: String =
     toJson(tasks.list).toString()
 
-  def createTable =
+  def createTable() =
     tasks.ddl.create
 
-  def dropTable =
+  def dropTable() =
     tasks.ddl.drop
 
   def addTask(content: String, assignee: String): String = {
-    (tasks returning tasks.map(_.taskId)) += Task(0, content, new DateTime(), false, assignee) match {
+    val asTask = Task(tasks.list.length + 1, content = content, created = new DateTime(), finished = false, assignee = assignee)
+    (tasks returning tasks.map(_.taskId)) += asTask match {
       case 0 => pgResult("Something went wrong")
       case n => pgResult(s"Task $n added successfully")
     }
