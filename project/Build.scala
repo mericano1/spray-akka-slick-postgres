@@ -50,6 +50,7 @@ object Dependencies {
   )
   val scalaCsv     = "com.github.tototoshi" %% "scala-csv"         % "1.0.0"
   val logback      = "ch.qos.logback"       %  "logback-classic"   % "1.0.0"
+  val scalatest = "org.scalatest" %% "scalatest" % "2.2.2" % "test"
 }
 
 object AppBuild extends Build {
@@ -70,7 +71,8 @@ object AppBuild extends Build {
     slick,
     postgres,
     scalaCsv,
-    logback
+    logback,
+    scalatest
   ) ++ slickJoda
 
   val allDeps = akkaDeps ++ sprayDeps ++ otherDeps
