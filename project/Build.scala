@@ -4,7 +4,7 @@ import Keys._
 object BuildSettings {
   val buildOrganization = "spray-akka-slick-postgres"
   val buildVersion      = "0.1.0"
-  val buildScalaVersion = "2.11.2"
+  val buildScalaVersion = "2.10.4"
 
   val buildSettings = Defaults.coreDefaultSettings ++ Seq (
     organization := buildOrganization,
@@ -24,7 +24,7 @@ object Resolvers {
   val sprayRepo       = "spray"                  at "http://repo.spray.io/"
   val sprayNightlies  = "Spray Nightlies"        at "http://nightlies.spray.io/"
   val sonatypeRel     = "Sonatype OSS Releases"  at "http://oss.sonatype.org/content/repositories/releases/"
-  val sonatypeSnap    = "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/" 
+  val sonatypeSnap    = "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
   val sprayResolvers    = Seq(sprayRepo, sprayNightlies)
   val sonatypeResolvers = Seq(sonatypeRel, sonatypeSnap)
@@ -32,7 +32,7 @@ object Resolvers {
 }
 
 object Dependencies {
-  val akkaVersion  = "2.3.6"
+  val akkaVersion  = "2.3.2"
   val sprayVersion = "1.3.1"
 
   val akkaActor    = "com.typesafe.akka" %% "akka-actor" % akkaVersion
@@ -40,7 +40,7 @@ object Dependencies {
   val sprayCan     = "io.spray" %  "spray-can"     % sprayVersion
   val sprayHttpx   = "io.spray" %  "spray-httpx"   % sprayVersion
   val sprayRouting = "io.spray" %  "spray-routing" % sprayVersion
-  val playJson    = "com.typesafe.play" %% "play-json" % "2.4.0-M1"
+  val playJson    = "com.typesafe.play" %% "play-json" % akkaVersion
   val slick        = "com.typesafe.slick"   %% "slick"             % "2.1.0"
   val postgres     = "org.postgresql"           %  "postgresql"        % "9.3-1102-jdbc41"
   val slickJoda    =  Seq(
@@ -51,7 +51,6 @@ object Dependencies {
   val scalaCsv     = "com.github.tototoshi" %% "scala-csv"         % "1.0.0"
   val logback      = "ch.qos.logback"       %  "logback-classic"   % "1.1.2"
   val scalatest = "org.scalatest" %% "scalatest" % "2.2.2" % "test"
-  val scalaXml = "org.scala-lang" % "scala-xml" % "2.11.0-M4"
 }
 
 object AppBuild extends Build {
@@ -73,8 +72,7 @@ object AppBuild extends Build {
     postgres,
     scalaCsv,
     logback,
-    scalatest,
-    scalaXml
+    scalatest
   ) ++ slickJoda
 
   val allDeps = akkaDeps ++ sprayDeps ++ otherDeps
@@ -83,6 +81,6 @@ object AppBuild extends Build {
     "spray-akka-slick-postgres",
     file("."),
     settings = buildSettings ++ Seq(resolvers           ++= allResolvers,
-                                    libraryDependencies ++= allDeps)
+      libraryDependencies ++= allDeps)
   )
 }
