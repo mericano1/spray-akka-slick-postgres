@@ -55,14 +55,14 @@ class TaskDAOSpec extends WordSpec with Matchers with BeforeAndAfter {
   }
 
   "numberOfTasks" should {
-    "return 0 for empty table" in {
+    "return json message with 0 for empty table" in {
       createTable()
 
       val expected = JsObject(fields = List(("numberOfTasks", JsNumber(0)))).toString()
       numberOfTasks should equal(expected)
     }
 
-    "return 1 when there has been 1 insert" in {
+    "return json message with 1 when there has been 1 insert" in {
       createTable()
 
       addTask(content = content, assignee = assignee)
@@ -71,7 +71,7 @@ class TaskDAOSpec extends WordSpec with Matchers with BeforeAndAfter {
       numberOfTasks should equal(expected)
     }
 
-    "return 3 when there have been 3 inserts" in {
+    "return json message with 3 when there have been 3 inserts" in {
       createTable()
 
       addTask(content = s"$content insert 1", assignee = assignee)
@@ -80,17 +80,6 @@ class TaskDAOSpec extends WordSpec with Matchers with BeforeAndAfter {
 
       val expected = JsObject(fields = List(("numberOfTasks", JsNumber(3)))).toString()
       numberOfTasks should equal(expected)
-    }
-  }
-
-  "Query Suppliers works" should {
-    "" in {
-      createTable()
-
-      addTask(content = content, assignee = assignee)
-
-      val results = tables
-      assert(results.size == 1)
     }
   }
 
