@@ -8,6 +8,7 @@ scala:
 addons:
   postgresql: "9.3"
 before_script:
-  - psql -c 'create database scottwalker;' -U postgres
+  - createuser -U postgres -s scottwalker
+  - psql -c 'create database scottwalker' -U postgres
 script:
   - sbt test
