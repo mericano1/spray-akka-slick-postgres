@@ -96,7 +96,7 @@ object TaskDAO extends PostgresSupport {
     addMultipleTasks(csvInfo)
   }
 
-  def deleteAll = {
+  def deleteAll() = {
     tasks.delete match {
       case 0 => pgResult("0 tasks deleted")
       case 1 => pgResult("1 task deleted")

@@ -17,7 +17,7 @@ class TaskDAOSpec extends WordSpec with Matchers with BeforeAndAfter {
       driver = C.dbDriver
     ).
       createSession()
-    dropTable()
+    if(tables.size > 0) dropTable()
   }
 
   "createTable" should {
