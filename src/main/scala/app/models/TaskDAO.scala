@@ -19,7 +19,7 @@ case class Task(
 object TaskDAO extends PostgresSupport {
 
   class TaskTable(tag: Tag) extends Table[Task](tag, "tasks") {
-    def taskId    = column[Long]     ("taskId", O.PrimaryKey)
+    def taskId    = column[Long]     ("taskId", O.PrimaryKey, O.DBType("BIGSERIAL"))
     def content   = column[String]  ("content", O.DBType("VARCHAR(50)"), O.NotNull)
     def created   = column[DateTime]("created", O.DBType("TIMESTAMP"), O.NotNull)
     def finished  = column[Boolean] ("finished", O.DBType("BOOLEAN"), O.NotNull)

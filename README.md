@@ -83,6 +83,6 @@ The following examples assume the `application.conf` file is configures the app 
 
     Sending data to the micro-service can be performed by using CURL to a POST route:
 
-    * Create the task "Buy-milk" with assignee "Scott":
+    * Create the task "Buy milk" with assignee "Me":
 
-    `curl --data "content=Buy-milk&assignee=Scott" http://localhost:3000/api/v1/tasks/`
+    curl -i -H "Content-Type:application/json" -d '{"content":"Buy milk", "assignee":"Me"}' http://localhost:3000/api/v1/tasks/
