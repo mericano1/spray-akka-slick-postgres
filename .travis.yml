@@ -1,5 +1,14 @@
+matrix:
+  fast_finish: true
+notifications:
+  email: false
 language: scala
 scala:
-  - "2.10.3"
+  - "2.10.4"
+addons:
+  postgresql: "9.3"
+before_script:
+  - createuser -U postgres -s scottwalker
+  - psql -c 'create database scottwalker' -U postgres
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION compile
+  - sbt test
