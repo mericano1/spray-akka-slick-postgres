@@ -2,17 +2,17 @@ package app.server
 
 import akka.actor._
 import akka.pattern.ask
-import app.actors.PostgresActor
+import app.actors.DatabaseActor
 import play.api.libs.json.JsObject
 import spray.httpx.PlayJsonSupport
 
 trait TaskService extends WebService with PlayJsonSupport {
-  import app.actors.PostgresActor._
+  import app.actors.DatabaseActor._
 
-  val postgresWorker = actorRefFactory.actorOf(Props[PostgresActor], "postgres-worker")
+  val databaseWorker : ActorRef
   
   def postgresCall(message: Any) =
-    (postgresWorker ? message).mapTo[String]
+    (databaseWorker ? message).mapTo[String]
 
   val taskServiceRoutes = {
     pathPrefix("tasks") {
@@ -45,14 +45,6 @@ trait TaskService extends WebService with PlayJsonSupport {
         get { ctx =>
           ctx.complete(postgresCall(GetIds))
         }
-      } ~
-      path("table") {
-        get { ctx =>
-          ctx.complete(postgresCall(CreateTable))
-        } ~
-          delete { ctx =>
-            ctx.complete(postgresCall(DropTable))
-          }
       }
     } ~
     path("task" / IntNumber) { taskId =>
