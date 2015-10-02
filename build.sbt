@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-routing" % sprayVersion,
   "com.typesafe.play" %% "play-json" % playJsonVersion,
   "com.typesafe.slick" %% "slick" % slickVersion,
-  "org.postgresql" % "postgresql" % "9.3-1102-jdbc41",
+  "org.postgresql" % "postgresql" % "9.4-1200-jdbc41",
   "joda-time" % "joda-time" % "2.4",
   "org.joda" % "joda-convert" % "1.6",
   "com.github.tototoshi" %% "slick-joda-mapper" % "1.2.0",
