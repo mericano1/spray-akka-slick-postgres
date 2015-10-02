@@ -1,4 +1,4 @@
-package app.database
+package app.adapters.database
 
 import org.scalatest.{Matchers, WordSpec}
 

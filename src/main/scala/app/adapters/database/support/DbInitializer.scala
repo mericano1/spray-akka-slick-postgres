@@ -1,6 +1,6 @@
-package app.database
+package app.adapters.database.support
 
-import app.models.TaskComponent
+import app.adapters.database.TaskComponent
 
 import scala.slick.jdbc.meta.MTable
 

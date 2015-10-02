@@ -1,8 +1,7 @@
-package app.models
+package app.adapters.database
 
-import app.database.DbSpec
+import app.adapters.database.TaskDAO.{Count, Result}
 import org.scalatest.{BeforeAndAfter, Matchers, WordSpec}
-import play.api.libs.json.{JsNumber, JsObject, JsString}
 
 import scala.slick.jdbc.meta.MTable
 
@@ -14,7 +13,7 @@ class TaskDAOSpec extends WordSpec with Matchers with DbSpec with BeforeAndAfter
 
   "addTask" should {
     "return success message that task was added" in conn.withSession { implicit session =>
-      val expected = JsObject(fields = List(("result", JsString("Task 1 added successfully")))).toString()
+      val expected = Result("Task 1 added successfully")
 
       val response = taskDAO.addTask(content = content, assignee = assignee)
 
@@ -32,7 +31,7 @@ class TaskDAOSpec extends WordSpec with Matchers with DbSpec with BeforeAndAfter
   "numberOfTasks" should {
     "return json message with 0 for empty table" in conn.withSession { implicit session =>
 
-      val expected = JsObject(fields = List(("numberOfTasks", JsNumber(0)))).toString()
+      val expected = Count(0)
       taskDAO.numberOfTasks should equal(expected)
     }
 
@@ -40,7 +39,7 @@ class TaskDAOSpec extends WordSpec with Matchers with DbSpec with BeforeAndAfter
 
       taskDAO.addTask(content = content, assignee = assignee)
 
-      val expected = JsObject(fields = List(("numberOfTasks", JsNumber(1)))).toString()
+      val expected =  Count(1)
       taskDAO.numberOfTasks should equal(expected)
     }
 
@@ -50,7 +49,7 @@ class TaskDAOSpec extends WordSpec with Matchers with DbSpec with BeforeAndAfter
       taskDAO.addTask(content = s"$content insert 2", assignee = assignee)
       taskDAO.addTask(content = s"$content insert 3", assignee = assignee)
 
-      val expected = JsObject(fields = List(("numberOfTasks", JsNumber(3)))).toString()
+      val expected =  Count(3)
       taskDAO.numberOfTasks should equal(expected)
     }
   }

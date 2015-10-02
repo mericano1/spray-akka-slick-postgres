@@ -1,4 +1,4 @@
-package app.database
+package app.adapters.database.support
 
 import java.sql.Connection
 import javax.sql.DataSource
@@ -15,19 +15,19 @@ trait DatabaseSupport {
 
   val dbProfile: DbProfile
 
-  private val dataSource : DataSource = {
+  private lazy val dataSource : DataSource = {
     val ds = new HikariDataSource()
     val dbConfig = dbProfile.dbConfig
     ds.setMaximumPoolSize(10)
     ds.setUsername(dbConfig.dbUser)
     ds.setPassword(dbConfig.dbPassword)
     ds.setJdbcUrl(dbConfig.dbURL)
-    ds.setDriverClassName(dbConfig.dbDriver)
+    ds.setDataSourceClassName(dbConfig.dbDriver)
     ds.setMaximumPoolSize(dbConfig.maximumPoolSize)
     ds
   }
 
-  val db = Database.forDataSource(dataSource)
+  lazy val db = Database.forDataSource(dataSource)
 
 
   def inSerializableTransaction[T](block: Session => T) = db.withSession { implicit session =>

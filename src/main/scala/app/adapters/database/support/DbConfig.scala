@@ -1,4 +1,4 @@
-package app.database
+package app.adapters.database.support
 
 import com.typesafe.config.Config
 

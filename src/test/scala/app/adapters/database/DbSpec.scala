@@ -1,5 +1,6 @@
-package app.database
+package app.adapters.database
 
+import app.adapters.database.support.{DbProfile, DbInitializer, DbConfig}
 import org.scalatest.{BeforeAndAfterEachTestData, Suite, TestData}
 
 import scala.slick.driver.JdbcDriver.simple._
