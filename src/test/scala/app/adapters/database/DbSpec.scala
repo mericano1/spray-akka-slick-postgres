@@ -12,9 +12,9 @@ trait DbSpec extends BeforeAndAfterEachTestData {
 
   val datasourceDriver = "org.h2.jdbcx.JdbcDataSource"
   val conn = Database.forURL(connURL, driver = "org.h2.Driver")
-  val alterRegex = "ALTER\\s+TABLE\\s+(.+?)\\s+RENAME\\s+COLUMN\\s+(.+?)\\s+TO\\s+(.+?)".r
+
   val databaseConfig = new DbConfig {
-    override val dbDriver = datasourceDriver
+    override val dbDriver = null
     override val dbURL = connURL
     override val dbUser = ""
     override val dbPassword = ""

@@ -3,7 +3,6 @@ package app.adapters.database
 import app.adapters.database.support.DbProfile
 import app.models.Task
 import org.joda.time.DateTime
-import play.api.libs.json.Json
 
 /**
  * User: asalvadore
@@ -28,7 +27,7 @@ class TaskDAO(val dbProfile: DbProfile) extends TaskComponent {
 
 
   def addTask(content: String, assignee: String)(implicit session: Session): Result = {
-    val asTask = Task(tasks.list.length + 1, content = content, created = new DateTime(), finished = false, assignee = assignee)
+    val asTask = Task(0, content = content, created = new DateTime(), finished = false, assignee = assignee)
     (tasks returning tasks.map(_.taskId)) += asTask match {
       case 0 => Result("Something went wrong", false)
       case n => Result(s"Task $n added successfully")

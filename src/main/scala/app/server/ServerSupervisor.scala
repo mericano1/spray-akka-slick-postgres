@@ -5,7 +5,7 @@ import akka.event.Logging
 import spray.http.HttpRequest
 import spray.routing.directives.LogEntry
 
-class ServerSupervisor(val dbWorker: ActorRef) extends Actor
+class ServerSupervisor(val taskService: ActorRef) extends Actor
 with TaskWebService {
 
   def actorRefFactory = context

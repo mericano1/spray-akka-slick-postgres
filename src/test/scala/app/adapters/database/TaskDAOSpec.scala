@@ -1,11 +1,11 @@
 package app.adapters.database
 
 import app.adapters.database.TaskDAO.{Count, Result}
-import org.scalatest.{BeforeAndAfter, Matchers, WordSpec}
+import org.scalatest.{Matchers, WordSpec}
 
 import scala.slick.jdbc.meta.MTable
 
-class TaskDAOSpec extends WordSpec with Matchers with DbSpec with BeforeAndAfter {
+class TaskDAOSpec extends WordSpec with Matchers with DbSpec {
 
   import dbProfile.profile.simple._
 

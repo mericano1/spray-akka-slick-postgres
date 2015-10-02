@@ -10,52 +10,49 @@ trait TaskWebService extends WebService with PlayJsonSupport {
 
   import TaskService._
 
-  val dbWorker: ActorRef
-
-  def postgresCall(message: Any) =
-    (dbWorker ? message).mapTo[String]
+  val taskService: ActorRef
 
   val taskServiceRoutes = {
     pathPrefix("tasks") {
       pathEndOrSingleSlash {
         get { ctx =>
-          ctx.complete((dbWorker ? FetchAll).mapTo[FetchAllResponse])
+          ctx.complete((taskService ? FetchAll).mapTo[FetchAllResponse])
         } ~
           post {
             entity(as[JsObject]) { js =>
               val content = (js \ "content").as[String]
               val assignee = (js \ "assignee").as[String]
-              complete((dbWorker ? CreateTask(content, assignee)).mapTo[CreateTaskResponse])
+              complete((taskService ? CreateTask(content, assignee)).mapTo[CreateTaskResponse])
             }
           }
       } ~
         path("count") {
           get { ctx =>
-            ctx.complete((dbWorker ? GetCount).mapTo[GetCountResponse])
+            ctx.complete((taskService ? GetCount).mapTo[GetCountResponse])
           }
         } ~
         path("all") {
           delete { ctx =>
-            ctx.complete((dbWorker ? DeleteAll).mapTo[DeleteAllResponse])
+            ctx.complete((taskService ? DeleteAll).mapTo[DeleteAllResponse])
           }
         } ~
         path("ids") {
           get { ctx =>
-            ctx.complete((dbWorker ? GetIds).mapTo[GetIdsResponse])
+            ctx.complete((taskService ? GetIds).mapTo[GetIdsResponse])
           }
         }
     } ~
       path("task" / IntNumber) { taskId =>
         get { ctx =>
-          ctx.complete((dbWorker ? FetchTask(taskId)).mapTo[FetchTaskResponse])
+          ctx.complete((taskService ? FetchTask(taskId)).mapTo[FetchTaskResponse])
         } ~
           put {
             formFields('content.as[String]) { (content) =>
-              complete((dbWorker ? ModifyTask(taskId, content)).mapTo[ModifyTaskResponse])
+              complete((taskService ? ModifyTask(taskId, content)).mapTo[ModifyTaskResponse])
             }
           } ~
           delete { ctx =>
-            ctx.complete((dbWorker ? DeleteTask(taskId)).mapTo[DeleteTaskResponse])
+            ctx.complete((taskService ? DeleteTask(taskId)).mapTo[DeleteTaskResponse])
           }
       }
   }
