@@ -24,6 +24,7 @@ trait DatabaseSupport {
     ds.setJdbcUrl(dbConfig.dbURL)
     ds.setDataSourceClassName(dbConfig.dbDriver)
     ds.setMaximumPoolSize(dbConfig.maximumPoolSize)
+    ds.setRegisterMbeans(true)
     ds
   }
 
