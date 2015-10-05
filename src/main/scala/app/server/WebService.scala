@@ -2,7 +2,7 @@ package app.server
 
 import akka.util.Timeout
 import spray.routing.HttpService
-
+import scala.language.postfixOps
 import scala.concurrent.duration._
 
 trait WebService extends HttpService {

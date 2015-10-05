@@ -1,0 +1,7 @@
+-J-Xms256m
+-J-Xmx768m
+-J-XX:MaxPermSize=128m
+-J-XX:ReservedCodeCacheSize=64m
+-Dapp.interface=0.0.0.0
+-Dconfig.file=conf/application.prod.conf
+-Dlogback.configurationFile=conf/logback.xml

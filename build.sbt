@@ -27,3 +27,34 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
   "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 )
+
+enablePlugins(JavaServerAppPackaging)
+
+enablePlugins(JDebPackaging)
+
+name in Debian := name.value
+
+version in Debian := version.value
+
+maintainer in Linux := "Tech Team <tech@devinprogress.info>"
+
+packageDescription in Linux := "templateweb application"
+
+packageSummary in Linux := "template web application"
+
+
+target in Debian <<= (Keys.target) apply ((t) => t / (name + "_" + version))
+
+bashScriptConfigLocation := Some("${app_home}/../conf/jvmopts")
+
+// This is copying all the conf folders under the single-deploy conf
+mappings in Universal <++= baseDirectory map {  base => {
+  val folders = Seq (
+    ("", base / "src/main/resources")
+  )
+  val dirAndFiles = folders.map(dir => (dir._1, dir._2, getFileTree(dir._2)))
+  dirAndFiles.flatMap { case (destPath, dir, files) => files.map { f =>
+    val relativePath = dir.toURI.relativize(f.toURI).getPath
+    (f, s"conf/$destPath/$relativePath")
+  }}.toSeq
+}}
