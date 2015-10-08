@@ -1,5 +1,8 @@
 package app
 
+import java.lang.management.ManagementFactory
+import java.util.concurrent.TimeUnit
+
 import akka.actor.Status.Failure
 import akka.actor._
 import akka.io.IO
@@ -10,6 +13,8 @@ import app.adapters.database.support.{DbProfile, DbInitializer, TypesafeDbConfig
 import app.server.ServerSupervisor
 import app.services.TaskService
 import app.utils.ShutdownHook
+import com.codahale.metrics.{JmxReporter, MetricRegistry}
+import com.codahale.metrics.jvm.{MemoryUsageGaugeSet, BufferPoolMetricSet, GarbageCollectorMetricSet, ThreadStatesGaugeSet}
 import com.typesafe.config.Config
 import spray.can.Http
 
@@ -20,11 +25,12 @@ object Main extends App with ShutdownHook{
   log.info("Actor system $system is up and running")
 
 
+  private val metricsRegistry = new MetricRegistry
   private val dbProfile = createDbProfile(Configs.configuration)
   private val taskDao = new TaskDAO(dbProfile)
   private val dbActor = system.actorOf(Props(new TaskService(taskDao)), "database-actor")
   private val mainHandler = system.actorOf(
-    Props(new ServerSupervisor(dbActor))
+    Props(new ServerSupervisor(metricsRegistry, dbActor))
       .withRouter(RoundRobinPool(nrOfInstances = 10)), "main-http-actor"
   )
 
@@ -33,9 +39,24 @@ object Main extends App with ShutdownHook{
   initDatabase(dbProfile)
   log.info("Postgres is up and running")
 
+  startMetrics()
+  log.info("Metrics started")
+
 
   IO(Http) ! Http.Bind(mainHandler, interface = Configs.interface, port = Configs.appPort)
 
+
+  private def startMetrics() {
+    metricsRegistry.registerAll(new ThreadStatesGaugeSet())
+    metricsRegistry.registerAll(new GarbageCollectorMetricSet())
+    metricsRegistry.registerAll(new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()))
+    metricsRegistry.registerAll(new MemoryUsageGaugeSet())
+    val reporter = JmxReporter.forRegistry(metricsRegistry)
+      .convertRatesTo(TimeUnit.SECONDS)
+      .convertDurationsTo(TimeUnit.MILLISECONDS)
+      .build()
+    reporter.start()
+  }
 
   private def initDatabase(dbProfile: DbProfile): Unit = {
     new DbInitializer(dbProfile).initialize

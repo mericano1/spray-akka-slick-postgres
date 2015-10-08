@@ -6,6 +6,7 @@ scalaVersion := "2.11.6"
 
 scalacOptions := Seq("-unchecked", "-feature", "-encoding", "utf8")
 
+resolvers += "asalvadore maven bintray" at "http://dl.bintray.com/asalvadore/maven"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
@@ -14,6 +15,7 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-can" % sprayVersion,
   "io.spray" %% "spray-httpx" % sprayVersion,
   "io.spray" %% "spray-routing" % sprayVersion,
+  "info.devinprogress" %% "spray-metrics" % ("0." + sprayVersion),
   "com.typesafe.play" %% "play-json" % playJsonVersion,
   "com.typesafe.slick" %% "slick" % slickVersion,
   "org.postgresql" % "postgresql" % "9.4-1200-jdbc41",
@@ -22,6 +24,7 @@ libraryDependencies ++= Seq(
   "com.github.tototoshi" %% "slick-joda-mapper" % "1.2.0",
   "ch.qos.logback" % "logback-classic" % "1.0.0",
   "com.zaxxer" % "HikariCP" % "2.4.1",
+  "io.dropwizard.metrics" % "metrics-jvm" % "3.1.2",
   "io.spray" %% "spray-testkit" % sprayVersion % "test",
   "com.h2database" % "h2" % "1.4.181" % "test",
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
