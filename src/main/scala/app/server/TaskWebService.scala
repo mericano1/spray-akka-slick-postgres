@@ -31,11 +31,6 @@ trait TaskWebService extends WebService with PlayJsonSupport {
             ctx.complete((taskService ? GetCount).mapTo[GetCountResponse])
           }
         } ~
-        path("all") {
-          delete { ctx =>
-            ctx.complete((taskService ? DeleteAll).mapTo[DeleteAllResponse])
-          }
-        } ~
         path("ids") {
           get { ctx =>
             ctx.complete((taskService ? GetIds).mapTo[GetIdsResponse])

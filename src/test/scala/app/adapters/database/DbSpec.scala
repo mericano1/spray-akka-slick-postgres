@@ -8,7 +8,7 @@ import scala.slick.driver.{H2Driver, JdbcProfile}
 
 trait DbSpec extends BeforeAndAfterEachTestData {
   this: Suite =>
-  val connURL = "jdbc:h2:mem:usapi;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_UPPER=false"
+  val connURL = s"jdbc:h2:mem:${this.getClass.getName}};DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_UPPER=false"
 
   val datasourceDriver = "org.h2.jdbcx.JdbcDataSource"
   val conn = Database.forURL(connURL, driver = "org.h2.Driver")

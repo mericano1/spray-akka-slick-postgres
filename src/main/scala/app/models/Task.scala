@@ -3,13 +3,13 @@ package app.models
 import org.joda.time.DateTime
 
 
-case class Task(
-  taskId:   Long,
+case class Task (
+  id:   Long,
   content:  String,
   created:  DateTime,
   finished: Boolean,
   assignee: String
-)
+) extends Identifiable
 
 
 

@@ -15,14 +15,17 @@ trait TaskComponent {
 
 
   class TaskTable(tag: Tag) extends Table[Task](tag, "tasks") {
-    def taskId    = column[Long]     ("taskId", O.AutoInc, O.PrimaryKey, O.DBType("BIGSERIAL"))
+    def id    = column[Long]     ("taskId", O.AutoInc, O.PrimaryKey, O.DBType("BIGSERIAL"))
     def content   = column[String]  ("content", O.DBType("VARCHAR(50)"), O.NotNull)
     def created   = column[DateTime]("created", O.DBType("TIMESTAMP"), O.NotNull)
     def finished  = column[Boolean] ("finished", O.DBType("BOOLEAN"), O.NotNull)
     def assignee  = column[String]  ("assignee", O.DBType("VARCHAR(20)"), O.NotNull)
-    def *         = (taskId, content , created , finished , assignee) <> (Task.tupled, Task.unapply)
+    def *         = (id, content , created , finished , assignee) <> (Task.tupled, Task.unapply)
   }
 
   val tasks = TableQuery[TaskTable]
 
 }
+
+
+

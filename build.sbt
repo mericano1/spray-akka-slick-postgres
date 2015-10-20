@@ -59,5 +59,5 @@ mappings in Universal <++= baseDirectory map {  base => {
   dirAndFiles.flatMap { case (destPath, dir, files) => files.map { f =>
     val relativePath = dir.toURI.relativize(f.toURI).getPath
     (f, s"conf/$destPath/$relativePath")
-  }}.toSeq
+  }}
 }}
