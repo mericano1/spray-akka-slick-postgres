@@ -25,6 +25,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.0.0",
   "com.zaxxer" % "HikariCP" % "2.4.1",
   "io.dropwizard.metrics" % "metrics-jvm" % "3.1.2",
+  "io.dropwizard.metrics" % "metrics-healthchecks" % "3.1.2",
   "io.spray" %% "spray-testkit" % sprayVersion % "test",
   "com.h2database" % "h2" % "1.4.181" % "test",
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
@@ -46,7 +47,7 @@ packageDescription in Linux := "templateweb application"
 packageSummary in Linux := "template web application"
 
 
-target in Debian <<= (Keys.target) apply ((t) => t / (name + "_" + version))
+target in Debian <<= Keys.target apply ((t) => t / (name + "_" + version))
 
 bashScriptConfigLocation := Some("${app_home}/../conf/jvmopts")
 

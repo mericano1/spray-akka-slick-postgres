@@ -9,15 +9,19 @@ import akka.io.IO
 import akka.routing.RoundRobinPool
 import app.Configs._
 import app.adapters.database._
-import app.adapters.database.support.{DbProfile, DbInitializer, TypesafeDbConfig, DbConfig}
+import app.adapters.database.support.{DbConfig, DbInitializer, DbProfile, TypesafeDbConfig}
 import app.server.ServerSupervisor
 import app.services.TaskService
 import app.utils.ShutdownHook
+import com.codahale.metrics.health.jvm.ThreadDeadlockHealthCheck
+import com.codahale.metrics.health.{HealthCheck, HealthCheckRegistry}
+import com.codahale.metrics.jvm.{BufferPoolMetricSet, GarbageCollectorMetricSet, MemoryUsageGaugeSet, ThreadStatesGaugeSet}
 import com.codahale.metrics.{JmxReporter, MetricRegistry}
-import com.codahale.metrics.jvm.{MemoryUsageGaugeSet, BufferPoolMetricSet, GarbageCollectorMetricSet, ThreadStatesGaugeSet}
 import com.typesafe.config.Config
 import spray.can.Http
 
+import scala.collection.JavaConverters._
+import scala.concurrent.duration._
 import scala.slick.driver.{JdbcProfile, PostgresDriver}
 
 object Main extends App with ShutdownHook{
@@ -26,9 +30,13 @@ object Main extends App with ShutdownHook{
 
 
   private val metricsRegistry = new MetricRegistry
+  private val healthCheckRegistry = new HealthCheckRegistry
   private val dbProfile = createDbProfile(Configs.configuration)
   private val taskDao = new TaskDAO(dbProfile)
-  private val dbActor = system.actorOf(Props(new TaskService(taskDao)), "database-actor")
+  private val dbActor = system.actorOf(Props(new TaskService(taskDao){
+    override val maybeMetricsRegistry: Option[AnyRef] = Some(metricsRegistry)
+    override val maybeHealthCheckRegistry: Option[AnyRef] = Some(healthCheckRegistry)
+  }), "database-actor")
   private val mainHandler = system.actorOf(
     Props(new ServerSupervisor(metricsRegistry, dbActor))
       .withRouter(RoundRobinPool(nrOfInstances = 10)), "main-http-actor"
@@ -39,14 +47,14 @@ object Main extends App with ShutdownHook{
   initDatabase(dbProfile)
   log.info("Postgres is up and running")
 
-  startMetrics()
+  startReporters()
   log.info("Metrics started")
 
 
   IO(Http) ! Http.Bind(mainHandler, interface = Configs.interface, port = Configs.appPort)
 
 
-  private def startMetrics() {
+  private def startReporters() {
     metricsRegistry.registerAll(new ThreadStatesGaugeSet())
     metricsRegistry.registerAll(new GarbageCollectorMetricSet())
     metricsRegistry.registerAll(new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer()))
@@ -56,6 +64,17 @@ object Main extends App with ShutdownHook{
       .convertDurationsTo(TimeUnit.MILLISECONDS)
       .build()
     reporter.start()
+    healthCheckRegistry.register("deadlocks", new ThreadDeadlockHealthCheck())
+    logHealth(healthCheckRegistry)
+  }
+
+  def logHealth(registry: HealthCheckRegistry)(implicit system :ActorSystem): Unit = {
+    import system.dispatcher
+    system.scheduler.schedule(FiniteDuration(10, "seconds"), FiniteDuration(10, "seconds")){
+      registry.runHealthChecks().asScala.foreach{
+        case (name: String, result: HealthCheck.Result) => log.info(s"The healthCheck $name reported status was $result")
+      }
+    }
   }
 
   private def initDatabase(dbProfile: DbProfile): Unit = {

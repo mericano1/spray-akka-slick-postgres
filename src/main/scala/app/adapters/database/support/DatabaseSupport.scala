@@ -14,6 +14,8 @@ import scala.slick.driver.JdbcDriver.simple._
 trait DatabaseSupport {
 
   val dbProfile: DbProfile
+  val maybeMetricsRegistry: Option[AnyRef] = None
+  val maybeHealthCheckRegistry: Option[AnyRef] = None
 
   private lazy val dataSource : DataSource = {
     val ds = new HikariDataSource()
@@ -25,6 +27,8 @@ trait DatabaseSupport {
     ds.setDataSourceClassName(dbConfig.dbDriver)
     ds.setMaximumPoolSize(dbConfig.maximumPoolSize)
     ds.setRegisterMbeans(true)
+    maybeMetricsRegistry.foreach(ds.setMetricRegistry(_))
+    maybeHealthCheckRegistry.foreach(ds.setHealthCheckRegistry(_))
     ds
   }
 
